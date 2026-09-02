@@ -1,0 +1,11 @@
+services:
+  edith:
+    build: .
+    container_name: edith-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
