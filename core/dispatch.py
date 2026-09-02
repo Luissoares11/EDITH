@@ -1,35 +1,20 @@
-from .errors import EdithError, InternalError
-from ..memory.store import (
-    add_fact,
-    find_facts,
-    delete_facts,
-    replace_fact,
-    dump_subject,
-    list_entities,
-    set_collection,
-    get_collection,
-    list_collections,
-    add_collection_item,
-    remove_collection_item,
-    replace_collection_item,
-    delete_collection,
-    add_alias,
-    get_aliases,
+from core.errors import EdithError, InternalError
+from memory.store import (
+    add_fact, find_facts, delete_facts, replace_fact, dump_subject,
+    list_entities, set_collection, get_collection, list_collections,
+    add_collection_item, remove_collection_item, replace_collection_item,
+    delete_collection, add_alias, get_aliases
 )
-from ..memory.resolver import resolve_entity, infer_entity_from_relation_target, push_entity
-from ..reasoning import (
-    check_conflict,
-    store_pending_conflict,
-    infer_implicit_facts,
-    resolve_transitive,
+from memory.resolver import resolve_entity, infer_entity_from_relation_target, push_entity
+from reasoning import (
+    check_conflict, store_pending_conflict, infer_implicit_facts, resolve_transitive
 )
-from ..relations import (
+from relations import (
     REL_NAME, REL_AGE, REL_RELATIONSHIP, REL_BIRTHDAY,
-    REL_OCCUPATION, REL_LOCATION, REL_NATIONALITY,
-    relation_display,
+    REL_OCCUPATION, REL_LOCATION, REL_NATIONALITY, relation_display
 )
-from ..personality import say
-from ..utils import clean_text, title_name, fuzzy_collection_name
+from personality import say
+from utils import clean_text, title_name, fuzzy_collection_name
 
 
 # ── formatters ────────────────────────────────────────────────
@@ -245,7 +230,7 @@ def _handle_query_fact(a, ctx):
         return say("unknown")
 
     if subject != "user":
-        push_entity(subject)
+        push_entity(subject, ctx)
 
     ctx["last_question_type"] = "age" if relation == REL_AGE else None
 
@@ -265,7 +250,7 @@ def _handle_query_entity(a, ctx):
     if not facts:
         return say("unknown")
 
-    push_entity(subject)
+    push_entity(subject, ctx)
     ctx["last_entity_facts"]  = facts
     ctx["last_question_type"] = "who"
     return format_entity_profile(subject, facts)
@@ -397,6 +382,19 @@ def _handle_confirm_conflict(a, ctx):
     return say("unknown")
 
 
+def _handle_trigger_clarification(a, ctx):
+    """Parks the incomplete action on the context and asks the user for the
+    missing field. core.process resumes it on the next turn."""
+    state = a["clarification_state"]
+    ctx["pending_clarification"] = state
+    return state["question"]
+
+
+def _handle_cancel_clarification(a, ctx):
+    ctx["pending_clarification"] = None
+    return "Never mind, then."
+
+
 def _handle_reject_conflict(a, ctx):
     if ctx.get("pending_conflict"):
         ctx["pending_conflict"] = None
@@ -439,6 +437,8 @@ _HANDLERS = {
     "remove_from_last_collection_by_position":  _handle_remove_from_last_collection_by_position,
     "confirm_conflict":                         _handle_confirm_conflict,
     "reject_conflict":                          _handle_reject_conflict,
+    "trigger_clarification":                    _handle_trigger_clarification,
+    "cancel_clarification":                     _handle_cancel_clarification,
 }
 
 

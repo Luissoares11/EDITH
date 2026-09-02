@@ -1,7 +1,8 @@
-import os
 import json
 import re
 import anthropic
+
+from config import ANTHROPIC_API_KEY
 
 SYSTEM_PROMPT = """You are the intent parser for EDITH, an AI assistant.
 Analyze the user's input and return a SINGLE JSON object representing the action to take.
@@ -27,11 +28,10 @@ Rules:
 """
 
 def interpret_with_llm(user_input: str, ctx: dict) -> dict:
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    if not api_key:
-        return {"action": "unknown", "error": "Missing Anthropic API Key"}
+    if not ANTHROPIC_API_KEY:
+        return {"action": "unknown", "detail": "Missing Anthropic API key"}
 
-    client = anthropic.Anthropic(api_key=api_key)
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     
     # We pass recent context so the LLM can resolve pronouns like "how old is HE?"
     context_str = f"Recent entities discussed: {ctx.get('recent_entities', [])}\n\n" if ctx.get("recent_entities") else ""

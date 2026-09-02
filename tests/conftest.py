@@ -3,7 +3,7 @@ from pathlib import Path
 
 # We import the modules that hold state we need to isolate
 import memory.store
-import intent.llm
+import intent.parser
 
 @pytest.fixture(autouse=True)
 def isolated_db(tmp_path, monkeypatch):
@@ -24,9 +24,13 @@ def mock_llm(monkeypatch):
     """
     Allows tests to easily mock Claude's response so we don't 
     waste API credits or wait for network calls during unit testing.
+
+    Patches the name bound inside intent.parser, not intent.llm: parser does
+    `from .llm import interpret_with_llm` at import time, so patching the
+    source module has no effect on the reference the pipeline actually calls.
     """
     def _set_mock_response(action_dict):
         def _mock_interpret(*args, **kwargs):
             return action_dict
-        monkeypatch.setattr(intent.llm, "interpret_with_llm", _mock_interpret)
+        monkeypatch.setattr(intent.parser, "interpret_with_llm", _mock_interpret)
     return _set_mock_response

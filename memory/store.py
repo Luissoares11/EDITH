@@ -4,8 +4,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from contextlib import contextmanager
 
-# Assumes this is run from the root edith/ directory
-DB_PATH = Path(__file__).parent.parent / "edith.db"
+from config import DB_PATH
 
 @contextmanager
 def db_session():
@@ -20,6 +19,7 @@ def db_session():
         conn.close()
 
 def init_db():
+    Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
     with db_session() as conn:
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS facts (

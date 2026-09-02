@@ -2,8 +2,9 @@ from intent.parser import interpret
 from memory.context import make_context
 
 def test_fast_pattern_matching_bypasses_llm(monkeypatch):
-    # If the LLM is called, this will raise an error and fail the test
-    monkeypatch.setattr("intent.llm.interpret_with_llm", lambda *a, **kw: 1/0)
+    # If the LLM is called, this will raise an error and fail the test.
+    # Must patch the parser's binding — patching intent.llm would be inert.
+    monkeypatch.setattr("intent.parser.interpret_with_llm", lambda *a, **kw: 1/0)
     
     # "hi" should hit the regex pattern in patterns.py instantly
     res = interpret("hi")

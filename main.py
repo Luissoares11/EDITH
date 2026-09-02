@@ -1,4 +1,4 @@
-import os
+from config import ANTHROPIC_API_KEY
 from memory import init_db, make_context
 from core import process_input
 
@@ -29,6 +29,6 @@ def main():
             print(f"EDITH: [System Error] {e}\n")
 
 if __name__ == "__main__":
-    if not os.getenv("ANTHROPIC_API_KEY"):
+    if not ANTHROPIC_API_KEY:
         print("WARNING: ANTHROPIC_API_KEY is not set. Complex intents will fail.\n")
     main()

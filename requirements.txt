@@ -1,0 +1,5 @@
+anthropic>=0.102.0
+python-dotenv>=1.2.2
+
+# Dev
+pytest>=9.1.1

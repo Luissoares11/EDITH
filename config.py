@@ -5,5 +5,5 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = Path(__file__).parent
-DB_PATH = os.getenv("EDITH_DB_PATH", str(BASE_DIR / "edith.db"))
+DB_PATH = Path(os.getenv("EDITH_DB_PATH", BASE_DIR / "data" / "edith.db"))
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
