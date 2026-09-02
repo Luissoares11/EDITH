@@ -23,8 +23,18 @@ _PATTERNS = [
      lambda m: {"action": "delete_fact", "subject": "user", "relation": m.group(2).strip()}),
 
     # ── Collections ─────────────────────────────────────────────────
-    (re.compile(r"^(what is|what's) on my (.+) (list|collection)\??$", re.I), 
+    (re.compile(r"^(what is|what's) on my (.+) (list|collection)\??$", re.I),
      lambda m: {"action": "query_collection", "owner": "user", "name": m.group(2).strip()}),
+
+    # ── Meta / What I Know ──────────────────────────────────────────
+    (re.compile(r"^(what do you know|what do you know about me|edith what do you know|who do you know)\??$", re.I),
+     lambda m: {"action": "list_knowledge"}),
+
+    (re.compile(r"^(tell me about|who is) ([a-z]+)\??$", re.I),
+     lambda m: {"action": "query_entity", "subject": m.group(2).strip()}),
+
+    (re.compile(r"^(list|show) (all )?(people|entities|friends|contacts)\??$", re.I),
+     lambda m: {"action": "list_entities"}),
 ]
 
 def match_pattern(user_input: str) -> dict | None:

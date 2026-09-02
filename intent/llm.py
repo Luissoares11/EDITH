@@ -9,9 +9,9 @@ Analyze the user's input and return a SINGLE JSON object representing the action
 Do NOT output markdown formatting (like ```json). Just the raw JSON object.
 
 Available actions and their required keys:
-- greeting
-- social
-- farewell
+- greeting: { "action": "greeting" }
+- social: { "action": "social" }
+- farewell: { "action": "farewell" }
 - store_fact: { "action": "store_fact", "subject": "...", "relation": "...", "object": "...", "replace": true/false }
 - query_fact: { "action": "query_fact", "subject": "...", "relation": "..." }
 - query_entity: { "action": "query_entity", "subject": "..." }
@@ -21,10 +21,14 @@ Available actions and their required keys:
 - delete_fact: { "action": "delete_fact", "subject": "...", "relation": "..." }
 - unknown: { "action": "unknown" }
 
-Rules:
+Critical Rules:
 1. If the user refers to themselves, the subject/owner is "user".
-2. If the user refers to an item to add to a list but doesn't name the list (e.g., "add milk too"), use "add_to_last_collection".
-3. "relation" should be a simple noun (e.g., "age", "location", "brother", "favorite color").
+2. For queries like "what is my girlfriend's name?" or "what's my brother's age?", the SUBJECT is the related person (e.g., "girlfriend", "brother"), and the RELATION is the attribute (e.g., "name", "age"). Do NOT nest relations.
+   - WRONG: subject="user", relation="girlfriend's name"
+   - RIGHT: subject="girlfriend", relation="name"
+3. "relation" should be a simple noun (e.g., "age", "location", "name", "birthday", "occupation").
+4. If the user refers to an item to add to a list but doesn't name the list (e.g., "add milk too"), use "add_to_last_collection".
+5. When uncertain, use "unknown" action.
 """
 
 def interpret_with_llm(user_input: str, ctx: dict) -> dict:
@@ -39,7 +43,7 @@ def interpret_with_llm(user_input: str, ctx: dict) -> dict:
 
     try:
         response = client.messages.create(
-            model="claude-3-haiku-20240307",
+            model="claude-haiku-4-5-20251001",
             max_tokens=256,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}],
