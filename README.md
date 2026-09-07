@@ -1,6 +1,8 @@
 # 🤖 E.D.I.T.H.
 **Extended Distributed Intelligence Through Humanistic Interaction**
 
+[![Deploy](https://github.com/Luissoares11/EDITH/actions/workflows/deploy.yml/badge.svg)](https://github.com/Luissoares11/EDITH/actions)
+
 A conversational AI assistant that learns from your corrections, manages your knowledge, and integrates with your calendar. Built with FastAPI, SQLite, and Claude AI.
 
 ## Features
