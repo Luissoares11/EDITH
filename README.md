@@ -1,4 +1,4 @@
-# E.D.I.T.H.
+# 🤖 E.D.I.T.H.
 **Extended Distributed Intelligence Through Humanistic Interaction**
 
 A conversational AI assistant that learns from your corrections, manages your knowledge, and integrates with your calendar. Built with FastAPI, SQLite, and Claude AI.
