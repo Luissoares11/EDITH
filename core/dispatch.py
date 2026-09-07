@@ -1,4 +1,7 @@
 from core.errors import EdithError, InternalError
+from core.services.calendar_client import (
+    add_event, list_events, edit_event, delete_event, CalendarServiceError
+)
 from memory.store import (
     add_fact, find_facts, delete_facts, replace_fact, dump_subject,
     list_entities, set_collection, get_collection, list_collections,
@@ -96,6 +99,29 @@ def format_knowledge():
         return "I don't know anything yet."
 
     return "\n".join(f"- {item}" for item in items)
+
+
+def format_event_list(events):
+    """Format calendar events for display."""
+    if not events:
+        return "You have nothing on the calendar for that range."
+
+    lines = []
+    for ev in events:
+        # Extract event details
+        title = ev.get("title", "Untitled")
+        event_type = ev.get("type", "")
+        start_time = ev.get("start_time", "")
+        notes = ev.get("notes", "")
+
+        # Format the line
+        type_label = f"[{event_type}] " if event_type else ""
+        time_label = f" at {start_time}" if start_time else ""
+        notes_label = f" — {notes}" if notes else ""
+
+        lines.append(f"- {type_label}{title}{time_label}{notes_label}")
+
+    return "\n".join(lines)
 
 
 def _position_to_index(position: str, length: int):
@@ -371,6 +397,68 @@ def _handle_remove_from_last_collection_by_position(a, ctx):
     return f"{say('confirm')} Removed '{removed}'."
 
 
+# ── handlers: calendar ──────────────────────────────────────────
+
+def _handle_calendar_add(a, ctx):
+    """Add an event to the calendar."""
+    # Validate required fields
+    if not a.get("title"):
+        return "I need an event title to add to your calendar."
+    if not a.get("date"):
+        return "I need a date for the event. When should it be?"
+
+    try:
+        result = add_event(
+            title=a["title"],
+            event_type=a.get("event_type", "other"),
+            date=a["date"],
+            time=a.get("time"),
+            notes=a.get("notes"),
+            recurrence=a.get("recurrence", "none"),
+        )
+        return result.get("message", f"{say('confirm')} Added '{a['title']}' to your calendar.")
+    except CalendarServiceError as e:
+        return f"I couldn't add the event: {str(e)}"
+
+
+def _handle_calendar_list(a, ctx):
+    """List upcoming events."""
+    try:
+        result = list_events(days=a.get("days", 30))
+        return format_event_list(result.get("events", []))
+    except CalendarServiceError as e:
+        return f"I couldn't retrieve your calendar: {str(e)}"
+
+
+def _handle_calendar_edit(a, ctx):
+    """Edit an existing event."""
+    if not a.get("title"):
+        return "Which event would you like to update?"
+
+    try:
+        result = edit_event(
+            title=a["title"],
+            new_title=a.get("new_title"),
+            new_date=a.get("new_date"),
+            new_time=a.get("new_time"),
+        )
+        return result.get("message", f"{say('confirm')} Updated '{a['title']}'.")
+    except CalendarServiceError as e:
+        return f"I couldn't update the event: {str(e)}"
+
+
+def _handle_calendar_delete(a, ctx):
+    """Delete an event from the calendar."""
+    if not a.get("title"):
+        return "Which event would you like to delete?"
+
+    try:
+        result = delete_event(title=a["title"])
+        return result.get("message", f"{say('confirm')} Removed '{a['title']}' from your calendar.")
+    except CalendarServiceError as e:
+        return f"I couldn't delete the event: {str(e)}"
+
+
 # ── handlers: conflict resolution ─────────────────────────────
 
 def _handle_confirm_conflict(a, ctx):
@@ -435,6 +523,10 @@ _HANDLERS = {
     "add_to_last_collection":                   _handle_add_to_last_collection,
     "replace_in_last_collection":               _handle_replace_in_last_collection,
     "remove_from_last_collection_by_position":  _handle_remove_from_last_collection_by_position,
+    "calendar_add":                             _handle_calendar_add,
+    "calendar_list":                            _handle_calendar_list,
+    "calendar_edit":                            _handle_calendar_edit,
+    "calendar_delete":                          _handle_calendar_delete,
     "confirm_conflict":                         _handle_confirm_conflict,
     "reject_conflict":                          _handle_reject_conflict,
     "trigger_clarification":                    _handle_trigger_clarification,

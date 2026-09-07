@@ -35,6 +35,19 @@ _PATTERNS = [
 
     (re.compile(r"^(list|show) (all )?(people|entities|friends|contacts)\??$", re.I),
      lambda m: {"action": "list_entities"}),
+
+    # ── Calendar ────────────────────────────────────────────────────
+    (re.compile(r"^(add|schedule|create) an? event[:\s]+(.+)$", re.I),
+     lambda m: {"action": "calendar_add", "title": m.group(2).strip()}),
+
+    (re.compile(r"^(show|what'?s? on|view) (my )?(calendar|schedule|events?)\??$", re.I),
+     lambda m: {"action": "calendar_list"}),
+
+    (re.compile(r"^(delete|remove|cancel) (the )?(event|meeting)\s+(.+)$", re.I),
+     lambda m: {"action": "calendar_delete", "title": m.group(4).strip()}),
+
+    (re.compile(r"^(update|edit|change|modify) (the )?(event|meeting)\s+(.+)$", re.I),
+     lambda m: {"action": "calendar_edit", "title": m.group(4).strip()}),
 ]
 
 def match_pattern(user_input: str) -> dict | None:
