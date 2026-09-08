@@ -1,4 +1,4 @@
-# 🤖 E.D.I.T.H.
+#  E.D.I.T.H.
 **Extended Distributed Intelligence Through Humanistic Interaction**
 
 [![Deploy](https://github.com/Luissoares11/EDITH/actions/workflows/deploy.yml/badge.svg)](https://github.com/Luissoares11/EDITH/actions)
