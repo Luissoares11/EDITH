@@ -3,7 +3,7 @@
 
 [![Deploy](https://github.com/Luissoares11/EDITH/actions/workflows/deploy.yml/badge.svg)](https://github.com/Luissoares11/EDITH/actions)
 
-A conversational AI assistant that learns from your corrections, manages your knowledge, and integrates with your calendar. Built with FastAPI, SQLite, and Claude AI.
+A conversational AI assistant that learns from your corrections, manages your knowledge, and integrates with your calendar. Built with FastAPI and SQLite.
 
 ## Features
 
